@@ -842,6 +842,10 @@ impl WriteBatch {
     pub fn is_empty(&self) -> bool {
         self.count() == 0
     }
+
+    pub fn clear(&self) {
+        unsafe { rocksdb_ffi::rocksdb_writebatch_clear(self.inner) }
+    }
 }
 
 impl Drop for WriteBatch {
