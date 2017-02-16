@@ -480,6 +480,18 @@ extern "C" {
 
     pub fn rocksdb_options_set_cuckoo_table_factory(opt: *mut rocksdb_options_t, table_options: *mut rocksdb_cuckoo_table_options_t);
 
+    // R-tree table options
+
+    pub fn rocksdb_rtree_options_create() -> *mut rocksdb_rtree_table_options_t;
+
+    pub fn rocksdb_rtree_options_destroy(options: *mut rocksdb_rtree_table_options_t);
+
+    pub fn rocksdb_rtree_options_set_dimensions(options: *mut rocksdb_rtree_table_options_t, v: uint8_t);
+
+    pub fn rocksdb_rtree_options_set_block_size(options: *mut rocksdb_rtree_table_options_t, v: size_t);
+
+    pub fn rocksdb_options_set_rtree_table_factory(opt: *mut rocksdb_options_t, table_options: *mut rocksdb_rtree_table_options_t);
+
     // Options
 
     pub fn rocksdb_options_create() -> *mut rocksdb_options_t;
@@ -676,6 +688,8 @@ extern "C" {
 
     pub fn rocksdb_options_set_memtable_vector_rep(opt: *mut rocksdb_options_t);
 
+    pub fn rocksdb_options_set_memtable_skip_list_mbb(opt: *mut rocksdb_options_t);
+
     pub fn rocksdb_options_set_hash_skip_list_rep(opt: *mut rocksdb_options_t,
                                                   bucket_count: size_t,
                                                   skiplist_height: int32_t,
@@ -774,6 +788,8 @@ extern "C" {
                                      -> *mut rocksdb_comparator_t;
 
     pub fn rocksdb_comparator_destroy(cmp: *mut rocksdb_comparator_t);
+
+    pub fn rocksdb_comparator_lowx_create() -> *mut rocksdb_comparator_t;
 
     // Filter policy
 
@@ -1002,6 +1018,8 @@ pub enum rocksdb_options_t { }
 pub enum rocksdb_block_based_table_options_t { }
 
 pub enum rocksdb_cuckoo_table_options_t { }
+
+pub enum rocksdb_rtree_table_options_t { }
 
 pub enum rocksdb_randomfile_t { }
 

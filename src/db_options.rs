@@ -19,7 +19,7 @@ use {BlockBasedOptions, DBCompactionStyle, DBCompressionType, DBRecoveryMode, Op
 use comparator::{self, ComparatorCallback, CompareFn};
 use ffi;
 
-use libc::{self, c_int, c_uchar, c_uint, c_void, size_t, uint64_t};
+use libc::{self, c_int, c_uchar, c_uint, c_void, size_t, uint8_t, uint64_t};
 use merge_operator::{self, MergeFn, MergeOperatorCallback, full_merge_callback,
                      partial_merge_callback};
 use compaction_filter::{self, CompactionFilterCallback, CompactionFilterFn, filter_callback};
@@ -851,6 +851,21 @@ impl Options {
     pub fn set_num_levels(&mut self, n: c_int) {
         unsafe {
             ffi::rocksdb_options_set_num_levels(self.inner, n);
+        }
+    }
+
+    /// Sets the options for using the R-tree
+    ///
+    /// This is a pretty high level function, but setting the individual settings the
+    /// individual options independent of each other doesn't make much sense.
+    pub fn set_rtree_table(&mut self, dimensions: uint8_t) {
+        unsafe {
+            let table_options = ffi::rocksdb_rtree_options_create();
+            ffi::rocksdb_rtree_options_set_dimensions(table_options, dimensions);
+            ffi::rocksdb_options_set_rtree_table_factory(self.inner, table_options);
+            ffi::rocksdb_options_set_memtable_skip_list_mbb(self.inner);
+            let comparator = ffi::rocksdb_comparator_lowx_create();
+            ffi::rocksdb_options_set_comparator(self.inner, comparator);
         }
     }
 }

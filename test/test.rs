@@ -19,3 +19,4 @@ mod test_iterator;
 mod test_multithreaded;
 mod test_column_family;
 mod test_rocksdb_options;
+mod test_rtree_table;
