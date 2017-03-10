@@ -100,6 +100,13 @@ pub struct Snapshot<'a> {
     inner: *const ffi::rocksdb_snapshot_t,
 }
 
+pub trait IteratorContext {
+    fn context(&self) -> *const ffi::rocksdb_iterator_context_t;
+}
+pub struct RtreeIteratorContext {
+    inner: *const ffi::rocksdb_iterator_context_t,
+}
+
 /// An iterator over a database or column family, with specifiable
 /// ranges and direction.
 ///
@@ -293,6 +300,32 @@ impl<'a> Drop for Snapshot<'a> {
         }
     }
 }
+
+
+impl IteratorContext for RtreeIteratorContext {
+    fn context(&self) -> *const ffi::rocksdb_iterator_context_t {
+        self.inner
+    }
+}
+
+impl RtreeIteratorContext {
+    fn new(mbb: &[u8]) -> RtreeIteratorContext {
+        unsafe {
+            let context = ffi::rocksdb_create_rtree_iterator_context(mbb.as_ptr() as *const c_char,
+                                                                     mbb.len() as size_t);
+            RtreeIteratorContext{ inner: context }
+        }
+    }
+}
+
+impl Drop for RtreeIteratorContext {
+    fn drop(&mut self) {
+        unsafe {
+            ffi::rocksdb_release_rtree_iterator_context(self.inner)
+        }
+    }
+}
+
 
 impl DB {
     /// Open a database with default options.
@@ -548,6 +581,14 @@ impl DB {
         let opts = ReadOptions::default();
         DBIterator::new_cf(self, cf_handle, &opts, mode)
     }
+
+    pub fn rtree_iterator(&self, mbb: &[u8]) -> DBIterator {
+        let mut opts = ReadOptions::default();
+        let context = RtreeIteratorContext::new(&mbb);
+        opts.set_rtree_iterator_context(context);
+        DBIterator::new(self, &opts, IteratorMode::Start)
+    }
+
 
     pub fn snapshot(&self) -> Snapshot {
         Snapshot::new(self)
@@ -823,7 +864,9 @@ impl fmt::Debug for DB {
 
 impl Drop for ReadOptions {
     fn drop(&mut self) {
-        unsafe { ffi::rocksdb_readoptions_destroy(self.inner) }
+        unsafe {
+            ffi::rocksdb_readoptions_destroy(self.inner)
+        }
     }
 }
 
@@ -849,6 +892,12 @@ impl ReadOptions {
             ffi::rocksdb_readoptions_set_iterate_upper_bound(self.inner,
                                                              key.as_ptr() as *const c_char,
                                                              key.len() as size_t);
+        }
+    }
+
+    pub fn set_rtree_iterator_context<T: IteratorContext>(&mut self, context: T) {
+        unsafe {
+            ffi::rocksdb_readoptions_set_iterator_context(self.inner, context.context());
         }
     }
 }

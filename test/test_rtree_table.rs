@@ -16,7 +16,7 @@
 use std::{slice, str};
 use std::mem::size_of;
 
-use rocksdb::{DB, DBIterator, Direction, IteratorMode, Options};
+use rocksdb::{DB, DBIterator, Options};
 
 fn iter_to_vec(iter: DBIterator) -> Vec<(Vec<f64>, String)>{
     let mut vec = Vec::new();
@@ -65,7 +65,7 @@ pub fn test_rtree_table() {
                 slice::from_raw_parts(query.as_ptr() as *const u8,
                                       query.len() * size_of::<f64>())
             };
-            let iter = db.iterator(IteratorMode::From(query_slice, Direction::Forward));
+            let iter = db.rtree_iterator(query_slice);
             let result = iter_to_vec(iter);
             assert_eq!(vec![(augsburg_key.clone(), "augsburg".to_string())], result);
         }
@@ -76,7 +76,7 @@ pub fn test_rtree_table() {
                 slice::from_raw_parts(query.as_ptr() as *const u8,
                                       query.len() * size_of::<f64>())
             };
-            let iter = db.iterator(IteratorMode::From(query_slice, Direction::Forward));
+            let iter = db.rtree_iterator(query_slice);
             let result = iter_to_vec(iter);
             assert_eq!(vec![(alameda_key.clone(), "alameda".to_string())], result);
         }
@@ -87,7 +87,7 @@ pub fn test_rtree_table() {
                 slice::from_raw_parts(query.as_ptr() as *const u8,
                                       query.len() * size_of::<f64>())
             };
-            let iter = db.iterator(IteratorMode::From(query_slice, Direction::Forward));
+            let iter = db.rtree_iterator(query_slice);
             let result = iter_to_vec(iter);
             assert!(result.is_empty());
         }
@@ -98,7 +98,7 @@ pub fn test_rtree_table() {
                 slice::from_raw_parts(query.as_ptr() as *const u8,
                                       query.len() * size_of::<f64>())
             };
-            let iter = db.iterator(IteratorMode::From(query_slice, Direction::Forward));
+            let iter = db.rtree_iterator(query_slice);
             let result = iter_to_vec(iter);
             assert_eq!(vec![(alameda_key.clone(), "alameda".to_string()),
                             (augsburg_key.clone(), "augsburg".to_string())],
