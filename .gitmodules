@@ -4,4 +4,5 @@
 [submodule "rocksdb_sys/rocksdb"]
 	path = librocksdb-sys/rocksdb
 	url = https://github.com/vmx/rocksdb.git
-	branch = rtree-table
+	branch = rtree-table-new-encoding
+

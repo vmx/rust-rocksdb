@@ -81,6 +81,10 @@ pub struct WriteBatch {
     inner: *mut ffi::rocksdb_writebatch_t,
 }
 
+pub struct RtreeKey {
+    inner: *mut ffi::rocksdb_rtree_key_t,
+}
+
 pub struct ReadOptions {
     inner: *mut ffi::rocksdb_readoptions_t,
 }
@@ -186,7 +190,7 @@ pub enum IteratorMode<'a> {
 }
 
 impl DBIterator {
-    fn new(db: &DB, readopts: &ReadOptions, mode: IteratorMode) -> DBIterator {
+    pub fn new(db: &DB, readopts: &ReadOptions, mode: IteratorMode) -> DBIterator {
         unsafe {
             let iterator = ffi::rocksdb_create_iterator(db.inner, readopts.inner);
 
@@ -309,10 +313,9 @@ impl IteratorContext for RtreeIteratorContext {
 }
 
 impl RtreeIteratorContext {
-    fn new(mbb: &[u8]) -> RtreeIteratorContext {
+    pub fn new(query_mbb: &RtreeKey) -> RtreeIteratorContext {
         unsafe {
-            let context = ffi::rocksdb_create_rtree_iterator_context(mbb.as_ptr() as *const c_char,
-                                                                     mbb.len() as size_t);
+            let context = ffi::rocksdb_create_rtree_iterator_context(query_mbb.inner);
             RtreeIteratorContext{ inner: context }
         }
     }
@@ -582,9 +585,9 @@ impl DB {
         DBIterator::new_cf(self, cf_handle, &opts, mode)
     }
 
-    pub fn rtree_iterator(&self, mbb: &[u8]) -> DBIterator {
+    pub fn rtree_iterator(&self, query_mbb: &RtreeKey) -> DBIterator {
         let mut opts = ReadOptions::default();
-        let context = RtreeIteratorContext::new(&mbb);
+        let context = RtreeIteratorContext::new(&query_mbb);
         opts.set_rtree_iterator_context(context);
         DBIterator::new(self, &opts, IteratorMode::Start)
     }
@@ -842,6 +845,39 @@ impl Default for WriteBatch {
 impl Drop for WriteBatch {
     fn drop(&mut self) {
         unsafe { ffi::rocksdb_writebatch_destroy(self.inner) }
+    }
+}
+
+impl RtreeKey {
+    pub fn push_double(&mut self, val: f64) {
+        unsafe { ffi::rocksdb_rtree_key_push_double(self.inner, val) };
+    }
+
+    pub fn push_string(&mut self, val: &str) {
+        unsafe { ffi::rocksdb_rtree_key_push_string(self.inner,
+                                                    val.as_bytes().as_ptr() as *const c_char,
+                                                    val.len() as size_t)};
+    }
+
+    pub fn as_slice(&mut self) -> &[u8] {
+        unsafe {
+            let mut size: usize = 0;
+            let data = ffi::rocksdb_rtree_key_data(self.inner,
+                                                   &mut size as *mut size_t);
+            slice::from_raw_parts(data as *const u8, size)
+        }
+    }
+}
+
+impl Default for RtreeKey {
+    fn default() -> RtreeKey {
+        RtreeKey { inner: unsafe { ffi::rocksdb_rtree_key_create() } }
+    }
+}
+
+impl Drop for RtreeKey {
+    fn drop(&mut self) {
+        unsafe { ffi::rocksdb_rtree_key_destroy(self.inner) }
     }
 }
 

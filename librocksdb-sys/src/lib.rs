@@ -221,7 +221,8 @@ extern "C" {
 
     pub fn rocksdb_release_snapshot(db: *mut rocksdb_t, snapshot: *const rocksdb_snapshot_t);
 
-    pub fn rocksdb_create_rtree_iterator_context(data: *const c_char, size: size_t) -> *const rocksdb_iterator_context_t;
+    pub fn rocksdb_create_rtree_iterator_context(query_mbb: *const rocksdb_rtree_key_t)
+                                                 -> *const rocksdb_iterator_context_t;
 
     pub fn rocksdb_release_rtree_iterator_context(ctx: *const rocksdb_iterator_context_t);
 
@@ -424,6 +425,17 @@ extern "C" {
     pub fn rocksdb_writebatch_data(batch: *mut rocksdb_writebatch_t,
                                    size: *mut size_t)
                                    -> *const c_char;
+
+    // R-tree keys
+
+    pub fn rocksdb_rtree_key_create() -> *mut rocksdb_rtree_key_t;
+    pub fn rocksdb_rtree_key_destroy(key: *mut rocksdb_rtree_key_t);
+    pub fn rocksdb_rtree_key_push_double(key: *mut rocksdb_rtree_key_t,
+                                         val: c_double);
+    pub fn rocksdb_rtree_key_push_string(key: *mut rocksdb_rtree_key_t,
+                                         val: *const c_char,
+                                         size: size_t);
+    pub fn rocksdb_rtree_key_data(key: *mut rocksdb_rtree_key_t, size: *mut size_t) -> *const c_char;
 
     // Block-based table options
 
@@ -1042,6 +1054,8 @@ pub enum rocksdb_iterator_context_t { }
 pub enum rocksdb_writablefile_t { }
 
 pub enum rocksdb_writebatch_t { }
+
+pub enum rocksdb_rtree_key_t { }
 
 pub enum rocksdb_writeoptions_t { }
 

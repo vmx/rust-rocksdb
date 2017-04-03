@@ -24,3 +24,7 @@ path = "test/test.rs"
 [dependencies]
 libc = "0.2"
 librocksdb-sys = { path = "librocksdb-sys", version = "0.4.1" }
+
+
+[dev-dependencies]
+integer-encoding = "1.0.3"
