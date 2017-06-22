@@ -45,7 +45,7 @@ mod db;
 mod db_options;
 
 pub use db::{DBCompactionStyle, DBCompressionType, DBIterator, DBRawIterator, DBRecoveryMode, DBVector,
-             ReadOptions, Direction, IteratorMode, Snapshot, WriteBatch, new_bloom_filter};
+             ReadOptions, Direction, IteratorMode, Snapshot, WriteBatch, new_bloom_filter, RtreeIteratorContext};
 
 pub use merge_operator::MergeOperands;
 pub use compaction_filter::Decision as CompactionDecision;
@@ -102,6 +102,14 @@ impl fmt::Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         self.message.fmt(formatter)
     }
+}
+
+pub enum BlockBasedIndexType {
+    BinarySearch = ffi::rocksdb_block_based_table_index_type_binary_search as isize,
+    HashSearch = ffi::rocksdb_block_based_table_index_type_hash_search as isize,
+    TwoLevelIndexSearch =
+        ffi::rocksdb_block_based_table_index_type_two_level_index_search as isize,
+    RtreeSearch = ffi::rocksdb_block_based_table_index_type_rtree_search as isize,
 }
 
 /// For configuring block-based file storage.

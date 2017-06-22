@@ -221,6 +221,10 @@ extern "C" {
 
     pub fn rocksdb_release_snapshot(db: *mut rocksdb_t, snapshot: *const rocksdb_snapshot_t);
 
+    pub fn rocksdb_create_rtree_iterator_context(data: *const c_char, size: size_t) -> *const rocksdb_iterator_context_t;
+
+    pub fn rocksdb_release_rtree_iterator_context(ctx: *const rocksdb_iterator_context_t);
+
     pub fn rocksdb_property_value(db: *mut rocksdb_t, propname: *const c_char) -> *mut c_char;
 
     pub fn rocksdb_property_value_cf(db: *mut rocksdb_t,
@@ -684,6 +688,8 @@ extern "C" {
 
     pub fn rocksdb_options_set_memtable_vector_rep(opt: *mut rocksdb_options_t);
 
+    pub fn rocksdb_options_set_memtable_skip_list_mbb_rep(opt: *mut rocksdb_options_t);
+
     pub fn rocksdb_options_set_hash_skip_list_rep(opt: *mut rocksdb_options_t,
                                                   bucket_count: size_t,
                                                   skiplist_height: int32_t,
@@ -822,6 +828,8 @@ extern "C" {
 
     pub fn rocksdb_readoptions_set_readahead_size(opt: *mut rocksdb_readoptions_t, v: size_t);
 
+    pub fn rocksdb_readoptions_set_iterator_context(opt: *mut rocksdb_readoptions_t, v: *const rocksdb_iterator_context_t);
+
     // Write options
 
     pub fn rocksdb_writeoptions_create() -> *mut rocksdb_writeoptions_t;
@@ -951,6 +959,8 @@ extern "C" {
 
 pub const rocksdb_block_based_table_index_type_binary_search: c_int = 0;
 pub const rocksdb_block_based_table_index_type_hash_search: c_int = 1;
+pub const rocksdb_block_based_table_index_type_two_level_index_search: c_int = 2;
+pub const rocksdb_block_based_table_index_type_rtree_search: c_int = 3;
 
 pub const rocksdb_no_compression: c_int = 0;
 pub const rocksdb_snappy_compression: c_int = 1;
@@ -1020,6 +1030,8 @@ pub enum rocksdb_seqfile_t { }
 pub enum rocksdb_slicetransform_t { }
 
 pub enum rocksdb_snapshot_t { }
+
+pub enum rocksdb_iterator_context_t { }
 
 pub enum rocksdb_writablefile_t { }
 

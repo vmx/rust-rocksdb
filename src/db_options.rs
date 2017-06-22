@@ -14,8 +14,8 @@
 //
 
 
-use {BlockBasedOptions, DBCompactionStyle, DBCompressionType, DBRecoveryMode, Options,
-     WriteOptions};
+use {BlockBasedOptions, BlockBasedIndexType, DBCompactionStyle, DBCompressionType, DBRecoveryMode,
+    Options, WriteOptions};
 use comparator::{self, ComparatorCallback, CompareFn};
 use ffi;
 
@@ -85,6 +85,12 @@ impl BlockBasedOptions {
     pub fn set_cache_index_and_filter_blocks(&mut self, v: bool) {
         unsafe {
             ffi::rocksdb_block_based_options_set_cache_index_and_filter_blocks(self.inner, v as u8);
+        }
+    }
+
+    pub fn set_index_type(&mut self, v: BlockBasedIndexType) {
+        unsafe {
+            ffi::rocksdb_block_based_options_set_index_type(self.inner, v as c_int);
         }
     }
 }
@@ -923,6 +929,13 @@ impl Options {
     pub fn set_num_levels(&mut self, n: c_int) {
         unsafe {
             ffi::rocksdb_options_set_num_levels(self.inner, n);
+        }
+    }
+
+    /// Sets the MemTable to the Mbb one
+    pub fn set_memtable_skip_list_mbb_rep(&mut self) {
+        unsafe {
+            ffi::rocksdb_options_set_memtable_skip_list_mbb_rep(self.inner);
         }
     }
 }
