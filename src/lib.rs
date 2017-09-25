@@ -42,7 +42,7 @@
 //! db_opts.create_missing_column_families(true);
 //! db_opts.create_if_missing(true);
 //!
-//! let db = DB::open_cf_descriptors(&db_opts, "path/for/rocksdb/storage_with_cfs", vec![cf]).unwrap();
+//! let db = DB::open_cf_descriptors(&db_opts, "path/for/rocksdb/storage_with_cfs", &vec![cf]).unwrap();
 //! ```
 //!
 
