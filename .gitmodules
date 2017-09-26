@@ -4,4 +4,4 @@
 [submodule "rocksdb_sys/rocksdb"]
 	path = librocksdb-sys/rocksdb
 	url = https://github.com/vmx/rocksdb.git
-	branch = wip-rtree-index2
+	branch = noise
