@@ -463,6 +463,8 @@ extern "C" {
 
     pub fn rocksdb_block_based_options_set_skip_table_builder_flush(options: *mut rocksdb_block_based_table_options_t, skip_table_builder_flush: c_uchar);
 
+    pub fn rocksdb_block_based_options_set_flush_block_policy_noise(options: *mut rocksdb_block_based_table_options_t);
+
     pub fn rocksdb_options_set_block_based_table_factory(opt: *mut rocksdb_options_t, table_options: *mut rocksdb_block_based_table_options_t);
 
     // Cuckoo table options

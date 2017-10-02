@@ -93,6 +93,12 @@ impl BlockBasedOptions {
             ffi::rocksdb_block_based_options_set_index_type(self.inner, v as c_int);
         }
     }
+
+    pub fn set_flush_block_policy_noise(&mut self) {
+        unsafe {
+            ffi::rocksdb_block_based_options_set_flush_block_policy_noise(self.inner);
+        }
+    }
 }
 
 impl Default for BlockBasedOptions {

@@ -138,15 +138,18 @@ pub fn test_rtree_index() {
     rtree_opts.create_if_missing(true);
     let mut block_based_opts = BlockBasedOptions::default();
     block_based_opts.set_index_type(BlockBasedIndexType::RtreeSearch);
+    block_based_opts.set_flush_block_policy_noise();
     rtree_opts.set_block_based_table_factory(&block_based_opts);
     rtree_opts.set_comparator("noise_rtree_cmp", compare_keys_rtree);
+
+    let keypath = "somekeypath";
+    let otherkeypath = "anotherkeypath";
 
     // Start a new scope, else the database can't be destroyed at the end of the test
     {
         let mut db = DB::open(&opts, path).unwrap();
         let rtree = db.create_cf("rtree", &rtree_opts).unwrap();
 
-        let keypath = "somekeypath";
         let augsburg_key = serialize_key(keypath, 10, 10.75, 11.11, 48.24, 48.50);
         let augsburg_key_slice = unsafe {
             slice::from_raw_parts(augsburg_key.as_ptr() as *const u8, augsburg_key.len())
@@ -186,6 +189,48 @@ pub fn test_rtree_index() {
             assert_eq!(vec!["augsburg".to_string(), "alameda".to_string()],
             result);
         }
+
+        let sydney_key = serialize_key(otherkeypath, 15, 150.26, 151.34, -34.17, -33.36);
+        let sydney_key_slice = unsafe {
+            slice::from_raw_parts(sydney_key.as_ptr() as *const u8, sydney_key.len())
+        };
+        db.put_cf(rtree, sydney_key_slice, b"sydney").unwrap();
+
+        {
+            let query = serialize_query(keypath, 2, 15, 10.0, 11.0, 48.0, 49.0);
+            let iter = db.rtree_iterator(&query.as_slice());
+            let result = values_from_iter(iter);
+            assert_eq!(vec!["augsburg".to_string()], result);
+        }
+
+        {
+            let query = serialize_query(otherkeypath, 1, 100, -180.0, 180.0, -90.0, 90.0);
+            let iter = db.rtree_iterator(&query.as_slice());
+            let result = values_from_iter(iter);
+            assert_eq!(vec!["sydney".to_string()], result);
+        }
     }
+
+    // In order to not only test the MemTable, the database needs to be closed (with ending
+    // the scope) and re-opened it again. This way the MemTable is flushed into an SSTable.
+    {
+        let db = DB::open_cf(&opts, path, &[&"rtree"], &[&rtree_opts]).unwrap();
+
+        {
+            let query = serialize_query(keypath, 2, 15, 10.0, 11.0, 48.0, 49.0);
+            let iter = db.rtree_iterator(&query.as_slice());
+            let result = values_from_iter(iter);
+            assert_eq!(vec!["augsburg".to_string()], result);
+        }
+
+        // This one would fail without the right flush block policy
+        {
+            let query = serialize_query(otherkeypath, 1, 100, -180.0, 180.0, -90.0, 90.0);
+            let iter = db.rtree_iterator(&query.as_slice());
+            let result = values_from_iter(iter);
+            assert_eq!(vec!["sydney".to_string()], result);
+        }
+    }
+
     assert!(DB::destroy(&opts, path).is_ok());
 }
