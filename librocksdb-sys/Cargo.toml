@@ -1,15 +1,18 @@
 [package]
-name = "librocksdb-sys"
-version = "0.5.0"
-authors = ["Karl Hobley <karlhobley10@gmail.com>", "Arkadiy Paronyan <arkadiy@ethcore.io>"]
+name = "noise_search_deps_librocksdb-sys"
+version = "0.1.0"
+authors = ["Volker Mische <volker.mische@gmail.com>"]
 license = "MIT/Apache-2.0/BSD-3-Clause"
-description = "Native bindings to librocksdb"
+description = "Fork of librocksdb-sys crate for Noise"
 readme = "README.md"
-repository = "https://github.com/spacejam/rust-rocksdb.git"
+repository = "https://github.com/pipedown/rust-rocksdb.git"
 keywords = [ "ffi", "rocksdb" ]
 
 build = "build.rs"
 links = "rocksdb"
+
+[lib]
+name = "librocksdb_sys"
 
 [features]
 default = [ "static" ]

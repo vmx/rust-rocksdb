@@ -1,11 +1,11 @@
 [package]
-name = "rocksdb"
-description = "Rust wrapper for Facebook's RocksDB embeddable database"
-version = "0.7.0"
-authors = ["Tyler Neely <t@jujit.su>", "David Greenberg <dsg123456789@gmail.com>"]
+name = "noise_search_deps_rocksdb"
+description = "Fork of rocksdb crate for Noise"
+version = "0.1.0"
+authors = ["Volker Mische <volker.mische@gmail.com>"]
 license = "Apache-2.0"
 keywords = ["database", "embedded", "LSM-tree", "persistence"]
-homepage = "https://github.com/spacejam/rust-rocksdb"
+homepage = "https://github.com/pipedown/rust-rocksdb"
 exclude = [
     ".gitignore",
     ".travis.yml",
@@ -13,13 +13,16 @@ exclude = [
     "test/**/*",
 ]
 
+[lib]
+name = "rocksdb"
+
 [features]
 default = []
 valgrind = []
 
 [dependencies]
 libc = "0.2"
-librocksdb-sys = { path = "librocksdb-sys", version = "0.5.0" }
+noise_search_deps_librocksdb-sys = { path = "librocksdb-sys", version = "0.1.0" }
 
 [dev-dependencies]
 integer-encoding = "1.0.3"
